@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+  <head>
+    <meta charset="utf-8" name="google" content="notranslate" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=0"
+    />
+    <link rel="stylesheet" type="text/css" href="globals.css" />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css"
+    />
+    <title>Public Smart Dispenser</title>
+
+    <style>
+      .content {
+        position: relative;
+        height: 1920px;
+        width: 1080px;
+        background-image: url(https://firebasestorage.googleapis.com/v0/b/psd-display.appspot.com/o/bg-splash.png?alt=media&token=8784be42-89cd-4e27-91b0-9e486de1f3a8);
+        background-size: cover;
+        background-position: 50% 50%;
+      }
+
+      .main {
+        display: flex;
+        margin-top: 400px;
+        flex-direction: column;
+      }
+
+      .splash-logo {
+        width: auto;
+        text-align: center;
+        display: flex;
+        flex-direction: row;
+        position: relative;
+        margin: auto;
+      }
+
+      .splash-logo-psd {
+        width: 312px;
+        position: relative;
+        height: auto;
+      }
+
+      .splash-logo-unm {
+        width: 225px;
+        margin-top: 110px;
+        position: relative;
+        height: 225px;
+      }
+
+      .splash-title {
+        display: flex;
+        flex-direction: column;
+        margin-top: -40px;
+      }
+
+      .splash-title-top {
+        display: flex;
+        flex-direction: column;
+        position: relative;
+        font-family: Georgia, serif;
+        color: #ffffff;
+        font-size: 60px;
+        text-align: center;
+        align-items: center;
+      }
+
+      .splash-title-bottom {
+        margin: auto;
+        color: #ffffff;
+        margin-top: 56px;
+        display: flex;
+        gap: 24px;
+        flex-direction: row;
+        align-items: center;
+        position: relative;
+      }
+
+      .splash-header-web {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        flex: 0 0 auto;
+      }
+
+      .splash-header-web-image {
+        width: 16px;
+        height: 16px;
+        position: relative;
+        object-fit: cover;
+      }
+
+      .splash-header-web-link {
+        position: relative;
+        width: fit-content;
+        margin-top: 8px;
+        font-family: "Arial-Regular", Helvetica;
+        font-weight: 400;
+        color: #ffffff;
+        font-size: 20px;
+        text-align: center;
+        letter-spacing: 0;
+        line-height: normal;
+        white-space: nowrap;
+      }
+
+      .splash-header-ig {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        position: relative;
+        flex: 0 0 auto;
+      }
+
+      .splash-header-ig-image {
+        width: 16px;
+        height: 16px;
+        position: relative;
+        object-fit: cover;
+      }
+
+      .splash-header-ig-link {
+        position: relative;
+        width: fit-content;
+        margin-top: 8px;
+        font-family: "Arial-Regular", Helvetica;
+        font-weight: 400;
+        color: #ffffff;
+        font-size: 20px;
+        text-align: center;
+        letter-spacing: 0;
+      }
+
+      .splash-footer {
+        position: absolute;
+        align-items: center;
+        align-content: center;
+        text-align: center;
+        justify-content: center;
+        justify-items: center;
+        margin: auto;
+        top: 1600px;
+        width: 1080px;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .splash-footer-web {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        position: relative;
+      }
+
+      .splash-footer-web-image {
+        position: relative;
+        width: 25px;
+        height: 25px;
+        object-fit: cover;
+      }
+
+      .splash-footer-web-link {
+        position: relative;
+        height: auto;
+        font-family: "Arial-Regular", Helvetica;
+        font-weight: 400;
+        color: #ffffff;
+        font-size: 32px;
+        text-align: center;
+      }
+    </style>
+
+    <script>
+      setTimeout(function () {
+        window.location.href = "/home";
+      }, 2000);
+    </script>
+  </head>
+
+  <body>
+    <div class="content">
+      <div class="main">
+        <div class="splash-logo">
+          <img
+            class="splash-logo-psd"
+            onclick="home()"
+            src="https://firebasestorage.googleapis.com/v0/b/psd-display.appspot.com/o/img-psd.png?alt=media&token=8be1db1e-f385-4a44-bcab-134df4eddc1b"
+          />
+          <img
+            class="splash-logo-unm"
+            onclick="home()"
+            src="https://firebasestorage.googleapis.com/v0/b/psd-display.appspot.com/o/img-unm.svg?alt=media&token=e881e559-bdb2-4aa5-8b32-61db6c037304"
+          />
+        </div>
+
+        <div class="splash-title">
+          <div class="splash-title-top">
+            <p>
+              <b>“Siapkan <i>Tumbler</i> mu,</b>
+            </p>
+            <b>Kurangi Sampah Plastik!”</b>
+          </div>
+
+          <div class="splash-title-bottom">
+            <div class="splash-header-web">
+              <img class="splash-header-web-image" src="img-web.svg" />
+              <p class="splash-header-web-link">www.psd.diginus.id</p>
+            </div>
+            <div class="splash-header-ig">
+              <img class="splash-header-ig-image" src="img-ig.svg" />
+              <p class="splash-header-ig-link">psd.diginus.id</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="splash-footer">
+        <div class="splash-footer-web">
+          <img class="splash-footer-web-image" src="img-ig.svg" />
+          <p class="splash-footer-web-link">psd.diginus.id</p>
+        </div>
+        <div class="splash-footer-web">
+          <img class="splash-footer-web-image" src="img-web.svg" />
+          <p class="splash-footer-web-link">www.psd.diginus.id</p>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+      });
+    </script>
+  </body>
+</html>
