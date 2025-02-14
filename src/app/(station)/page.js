@@ -1,31 +1,12 @@
 'use client';
 
+import Image from 'next/image'
 import styles from './style.module.css';
 import { useRouter } from 'next/navigation'
 
 export default function Home() {
 
-  const router = useRouter()
-
-  function buy() {
-    window.location.href = "/buy";
-  }
-  
-  function sedekah() {
-    window.location.href = "/splash-share";
-  }
-  
-  function waqaf() {
-    window.location.href = "/splash-wakaf";
-  }
-  
-  function consume() {
-    window.location.href = "/air-gratis";
-  }
-  
-  function panduan() {
-    window.location.href = "/panduan";
-  }
+  const router = useRouter();
 
   // let check = true;
 
@@ -63,37 +44,50 @@ export default function Home() {
 
   return (
     <>
-      <title>Public Smart Dispenser</title>
       <div className={styles.content}>
         <div className="header">
           <div className="logo">
-            <img
+            <Image
               className="logo-psd"
-              onClick={() => window.location.href = "/"}
-              src="https://firebasestorage.googleapis.com/v0/b/psd-display.appspot.com/o/img-psd.png?alt=media&token=8be1db1e-f385-4a44-bcab-134df4eddc1b"
+              width={500}
+              height={500}
+              src="/img-psd.png"
+              alt="logo psd"
             />
-            <img
+            <Image
               className="logo-unm"
-              onClick={() => window.location.href = "/"}
+              width={500}
+              height={500}
               src="https://firebasestorage.googleapis.com/v0/b/psd-display.appspot.com/o/img-unm.svg?alt=media&token=e881e559-bdb2-4aa5-8b32-61db6c037304"
+              alt="logo unm"
             />
           </div>
 
           <div className="title">
             <div className="title-top">
               <p>
-                <b>“Siapkan <i>Tumbler</i> mu,</b>
+                <b>&quot;Siapkan <i>Tumbler</i> mu,</b>
               </p>
-              <b>Kurangi Sampah Plastik!”</b>
+              <b>Kurangi Sampah Plastik!&quot;</b>
             </div>
 
             <div className="title-bottom">
               <div className="header-web">
-                <img className="header-web-image" src="/img-web.svg" />
+                <Image
+                  className="header-web-image"
+                  src="/img-web.svg"
+                  width={500}
+                  height={500}
+                  alt="web logo" />
                 <p className="header-web-link">www.psd.diginus.id</p>
               </div>
               <div className="header-ig">
-                <img className="header-ig-image" src="/img-ig.svg" />
+                <Image
+                  width={500}
+                  height={500}
+                  className="header-ig-image"
+                  src="/img-ig.svg"
+                  alt="ig logo"/>
                 <p className="header-ig-link">psd.diginus.id</p>
               </div>
             </div>
@@ -103,7 +97,12 @@ export default function Home() {
         <div className={styles.main}>
           <div className={styles.dash_ungu_short}></div>
           <div className={styles.service}>
-            <img className={styles.img_service} src="/img-layanan.png" />
+            <Image
+              width={500}
+              height={500}
+              className={styles.img_service}
+              src="/img-layanan.png"
+              alt="layanan image"/>
             <div className={styles.text_service}>
               <p className={styles.title_service}>Membeli Air</p>
               <p className={styles.desc_service}>
@@ -114,7 +113,12 @@ export default function Home() {
           </div>
 
           <div className={styles.service}>
-            <img className={styles.img_service} src="/img-layanan.png" />
+            <Image
+              width={500}
+              height={500}
+              className={styles.img_service}
+              src="/img-layanan.png"
+              alt="layanan image"/>
             <div className={styles.text_service}>
               <p className={styles.title_service}>Sedekah Air</p>
               <p className={styles.desc_service}>
@@ -125,7 +129,12 @@ export default function Home() {
           </div>
 
           <div className={styles.service}>
-            <img className={styles.img_service} src="/img-layanan.png" />
+            <Image
+              width={500}
+              height={500}
+              className={styles.img_service}
+              src="/img-layanan.png"
+              alt="layanan image"/>
             <div className={styles.text_service}>
               <p className={styles.title_service}>Wakaf Air</p>
               <p className={styles.desc_service}>
@@ -136,7 +145,12 @@ export default function Home() {
           </div>
 
           <div className={styles.service}>
-            <img className={styles.img_service} src="/img-layanan.png" />
+            <Image
+              width={500}
+              height={500}
+              className={styles.img_service}
+              src="/img-layanan.png"
+              alt="layanan image"/>
             <div className={styles.text_service}>
               <p className={styles.title_service}>Air Gratis</p>
               <p className={styles.desc_service}>
@@ -153,7 +167,12 @@ export default function Home() {
 
         <div className="footer">
           <div className="footer-web">
-            <img className="footer-web-image" src="/img-web.svg" />
+            <Image
+              width={500}
+              height={500}
+              className="footer-web-image"
+              src="/img-web.svg"
+              alt="footer image"/>
             <p className="footer-web-link">www.psd.diginus.id</p>
           </div>
         </div>
