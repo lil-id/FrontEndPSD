@@ -1,0 +1,8 @@
+.content {
+    position: relative;
+    height: 1920px;
+    width: 1080px;
+    background-image: url(https://firebasestorage.googleapis.com/v0/b/psd-display.appspot.com/o/img-bg-main.jpg?alt=media&token=944c24b2-f875-431d-b155-d532372b066b);
+    background-size: cover;
+    background-position: 50% 50%;
+}

@@ -19,8 +19,6 @@ export default function DashboardLayout({ children }) {
         <title>Public Smart Dispenser</title>
     </head>
       <body>
-        {/* Layout UI */}
-        {/* Place children where you want to render a page or nested layout */}
         <main>{children}</main>
       </body>
     </html>
