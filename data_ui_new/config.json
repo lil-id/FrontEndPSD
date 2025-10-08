@@ -1,0 +1,83 @@
+{
+  "services": [
+    {
+      "id": "buy",
+      "title": "Membeli Air",
+      "desc": "Gunakan wadah minimal ukuran 200 ML. Isi Tumbler mulai 200,-",
+      "icon": "assets/img-layanan.png",
+      "button": "Beli",
+      "action": "buy",
+      "enabled": true,
+      "meta": { "min_volume_ml": 200, "min_price": 200 }
+    },
+    {
+      "id": "sedekah",
+      "title": "Sedekah Air",
+      "desc": "Ayo berbagi kebaikan dengan air tanpa minimum nominal.",
+      "icon": "assets/img-layanan.png",
+      "button": "Sedekah",
+      "action": "sedekah",
+      "enabled": true
+    },
+    {
+      "id": "wakaf",
+      "title": "Wakaf Air",
+      "desc": "Ayo berbagi kebaikan dengan air tanpa minimum nominal.",
+      "icon": "assets/img-layanan.png",
+      "button": "Wakaf",
+      "action": "wakaf",
+      "enabled": true
+    },
+    {
+      "id": "gratis",
+      "title": "Air Gratis",
+      "desc": "200 ml setiap transaksi untuk kamu yang butuh penghilang dahaga.",
+      "icon": "assets/img-layanan.png",
+      "button": "Ambil",
+      "action": "consume",
+      "enabled": true,
+      "meta": { "quota_ml": 200 }
+    },
+    {
+      "id": "app",
+      "title": "Transaksi\nMenggunakan\nAplikasi",
+      "desc": "",
+      "icon": "assets/img-layanan.png",
+      "button": "Aplikasi SWS",
+      "action": "app",
+      "enabled": false
+    }
+  ],
+  "paymentMethods": [
+    {
+      "id": "qris",
+      "name": "QRIS",
+      "icon": "📱",
+      "colorStart": "#e3f2fd",
+      "colorEnd": "#bbdefb",
+      "border": "#90caf9",
+      "shadow": "rgba(33, 150, 243, 0.3)",
+      "enabled": true
+    },
+    {
+      "id": "cash",
+      "name": "Tunai",
+      "icon": "💵",
+      "colorStart": "#e8f5e9",
+      "colorEnd": "#c8e6c9",
+      "border": "#a5d6a7",
+      "shadow": "rgba(76, 175, 80, 0.3)",
+      "enabled": false
+    },
+    {
+      "id": "card",
+      "name": "Kartu",
+      "icon": "💳",
+      "colorStart": "#f3e5f5",
+      "colorEnd": "#e1bee7",
+      "border": "#ce93d8",
+      "shadow": "rgba(156, 39, 176, 0.3)",
+      "enabled": false
+    }
+  ]
+}

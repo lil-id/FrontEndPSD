@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+
+<head>
+    <meta charset="utf-8" content="notranslate" name="google" />
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+    <meta http-equiv="Pragma" content="no-cache" />
+    <meta http-equiv="Expires" content="0" />
+    <title>Public Smart Dispenser</title>
+
+    <link rel="stylesheet" href="globals.css" />
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+
+    <script src="lib/jquery-3.7.1.min.js"></script>
+    <script src="lib/sweetalert2.js"></script>
+
+    <!-- 1) BOOTSTRAP: buat namespace global lebih dulu -->
+    <script>
+        window.PSDApp = {};
+    </script>
+
+    <!-- 2) App scripts (urutannya penting: utils -> services/ws/router -> pages -> payments) -->
+    <script src="js/utils.js"></script>
+    <script src="js/services.js"></script>
+    <script src="js/ws.js"></script>
+    <script src="js/router.js"></script>
+    <script src="js/pages-buy.js"></script>
+    <script src="js/pages-share.js"></script>
+    <script src="js/pages-wakaf.js"></script>
+    <script src="js/payments.js"></script>
+</head>
+
+<body>
+    <div class="content" id="root">
+        <div class="header">
+            <div class="logo">
+                <img class="logo-psd" src="assets/img-psd.png" onclick="PSDApp.Router.home()" />
+                <img class="logo-unm" src="assets/img-unm.png" onclick="PSDApp.Router.home()" />
+            </div>
+            <div class="title">
+                <div class="title-top">
+                    <p><b>“Siapkan <i>Tumbler</i> mu,</b></p><b>Kurangi Sampah Plastik!”</b>
+                </div>
+                <div class="title-bottom">
+                    <div class="header-web"><img class="header-web-image" src="assets/img-web.svg" />
+                        <p class="header-web-link">www.psd.diginus.id</p>
+                    </div>
+                    <div class="header-ig"><img class="header-ig-image" src="assets/img-ig.svg" />
+                        <p class="header-ig-link">psd.diginus.id</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main" id="main-content"></div>
+
+        <div class="footer">
+            <div class="footer-web"><img class="footer-web-image" src="assets/img-web.svg" />
+                <p class="footer-web-link">www.psd.diginus.id</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3) Boot sesudah semua script siap & DOM loaded -->
+    <script>
+        window.addEventListener('load', () => {
+            // Kalau lagi tes di Laragon/localhost dan belum ada endpoint WS, ws.js bisa memock otomatis (kalau sudah kamu pasang logic isLocal)
+            PSDApp.initWebSocket();
+
+            // Pakai helper path bila kamu set di utils.js (opsional). Kalau belum, ini juga oke:
+            PSDApp.Router.loadPage("pages/home-page.html", "STATE_RESET");
+            PSDApp.loadServices();
+
+            // disable context menu
+            document.addEventListener("contextmenu", e => e.preventDefault());
+        });
+    </script>
+</body>
+
+</html>

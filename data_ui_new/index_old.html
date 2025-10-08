@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+
+<head>
+  <meta charset="utf-8" content="notranslate" name="google" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=0" />
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+  <meta http-equiv="Pragma" content="no-cache" />
+  <meta http-equiv="Expires" content="0" />
+  <title>Public Smart Dispenser</title>
+  <link rel="stylesheet" href="globals.css" />
+  <link rel="icon" type="image/x-icon" href="assets/favicon.ico" />
+  <script type="text/javascript" src="lib/jquery-3.7.1.min.js"></script>
+  <script type="text/javascript" src="lib/sweetalert2.js"></script>
+
+  <script>
+    function ads() {
+      window.location.href = "/pages/ads-page.html";
+    }
+    function home() {
+      loadPage("pages/home-page.html", "STATE_RESET");
+      loadServices();
+    }
+    function buy() {
+      loadPage("pages/buy-page.html", "STATE_BUY");
+    }
+    function sedekah() {
+      loadPage("pages/share-page.html", "STATE_SHARE");
+    }
+    function wakaf() {
+      loadPage("pages/wakaf-page.html", "STATE_WAKAF");
+    }
+    function consume() {
+      Swal.fire({
+        title: "<strong>Ambil Air Gratis?</strong>",
+        html: ` <div class="free-water-content"><div class="water-icon">💧</div><p class="water-amount">Kamu akan mendapatkan <b>200 ml</b> air gratis</p><div class="tumbler-reminder"><div class="reminder-icon">🥤</div><p>Pastikan tumbler sudah siap ya!</p></div></div><style> .free-water-content { display: flex; flex-direction: column; align-items: center; margin: 15px 0; } .water-icon { font-size: 4rem; margin-bottom: 15px; animation: drop 2s ease-in-out infinite; } @keyframes drop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } } .water-amount { font-size: 18px; text-align: center; margin: 0 0 20px 0; line-height: 1.5; } .water-amount b { color: #814092; font-size: 22px; } .tumbler-reminder { display: flex; align-items: center; background: rgba(129, 64, 146, 0.1); padding: 12px 20px; border-radius: 50px; border-left: 4px solid #814092; } .reminder-icon { font-size: 1.5rem; margin-right: 10px; } .tumbler-reminder p { margin: 0; font-size: 16px; color: #555; } </style> `,
+        icon: "info",
+        showCancelButton: true,
+        confirmButtonText: "<b>✅ Ya, Ambil Sekarang</b>",
+        cancelButtonText: "❌ Batal",
+        reverseButtons: true,
+        background: "#f5f5f5",
+        color: "#333",
+        confirmButtonColor: "#814092",
+        cancelButtonColor: "#999",
+        allowOutsideClick: false,
+        customClass: {
+          popup: "swal2-rounded",
+          title: "swal2-title-custom",
+          confirmButton: "swal2-confirm-custom",
+          cancelButton: "swal2-cancel-custom",
+        },
+        didOpen: () => {
+          const confirmBtn = Swal.getConfirmButton();
+          const cancelBtn = Swal.getCancelButton();
+          confirmBtn.addEventListener("mouseenter", () => {
+            confirmBtn.style.transform = "scale(1.05)";
+            confirmBtn.style.boxShadow = "0 4px 8px rgba(129, 64, 146, 0.3)";
+          });
+          confirmBtn.addEventListener("mouseleave", () => {
+            confirmBtn.style.transform = "";
+            confirmBtn.style.boxShadow = "";
+          });
+          cancelBtn.addEventListener("mouseenter", () => {
+            cancelBtn.style.transform = "scale(1.05)";
+            cancelBtn.style.boxShadow = "0 4px 8px rgba(153, 153, 153, 0.3)";
+          });
+          cancelBtn.addEventListener("mouseleave", () => {
+            cancelBtn.style.transform = "";
+            cancelBtn.style.boxShadow = "";
+          });
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          Swal.fire({
+            title: "Memproses...",
+            text: "Sedang menyiapkan air gratis untuk Anda",
+            icon: "success",
+            timer: 1500,
+            timerProgressBar: true,
+            showConfirmButton: false,
+            allowOutsideClick: false,
+          }).then(() => {
+            loadPage("pages/consume-page.html", "STATE_CHECK_AIR_GRATIS");
+          });
+        }
+      });
+    }
+    function panduan() {
+      loadFullPage("pages/guide-page.html", "STATE_PANDUAN");
+    }
+    async function choosePayment() {
+      try {
+        // Ambil config dari LittleFS (diserve ESP32)
+        const res = await fetch('/config.json', { cache: 'no-cache' });
+        const cfg = await res.json();
+        const methods = cfg.paymentMethods || [];
+
+        // Bangun grid HTML dari data config
+        const grid = methods.map(m => `
+      <div class="payment-item ${m.id}" data-method="${m.id}"
+           style="
+             background:linear-gradient(135deg,${m.colorStart},${m.colorEnd});
+             border:1px solid ${m.border};
+           ">
+        <div class="payment-icon">${m.icon}</div>
+        <div class="payment-name">${m.name}</div>
+      </div>`).join('');
+
+        const css = `
+      <style>
+        .payment-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(140px,1fr)); gap: 15px; margin: 20px 0; }
+        .payment-item { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px 10px; border-radius:16px; cursor:pointer; transition:all .3s ease; text-align:center; height:160px; position:relative; overflow:hidden; }
+        .payment-item:hover { transform:translateY(-8px); box-shadow:0 8px 16px var(--shadow); }
+        .payment-icon { font-size:2.8rem; margin-bottom:12px; filter:drop-shadow(0 2px 2px rgba(0,0,0,.1)); }
+        .payment-name { font-weight:700; font-size:18px; color:#333; }
+        .payment-item::after { content:''; position:absolute; top:50%; left:50%; width:5px; height:5px; background:rgba(255,255,255,.5); opacity:0; border-radius:100%; transform:scale(1,1) translate(-50%); transform-origin:50% 50%; }
+        .payment-item:focus:not(:active)::after { animation:ripple 1s ease-out; }
+        @keyframes ripple { 0% { transform:scale(0,0); opacity:.5; } 100% { transform:scale(20,20); opacity:0; } }
+        @media (max-width:480px){ .payment-grid { grid-template-columns:1fr; } .payment-item { height:100px; flex-direction:row; justify-content:flex-start; padding:15px; } .payment-icon { margin-bottom:0; margin-right:15px; font-size:2.2rem; } }
+      </style>`;
+
+        // Tampilkan SweetAlert
+        Swal.fire({
+          title: "<strong>Pilih Metode Pembayaran</strong>",
+          html: `<div class="payment-grid">${grid}</div>${css}`,
+          icon: "info",
+          showCancelButton: true,
+          cancelButtonText: "❌ Batal",
+          reverseButtons: true,
+          background: "#f5f5f5",
+          color: "#333",
+          cancelButtonColor: "#999",
+          allowOutsideClick: false,
+          customClass: {
+            popup: "swal2-rounded",
+            title: "swal2-title-custom",
+            cancelButton: "swal2-cancel-custom",
+          },
+          didOpen: () => {
+            // attach click handler per item
+            document.querySelectorAll('.payment-item').forEach(el => {
+              const id = el.dataset.method;
+              const m = methods.find(x => x.id === id);
+              el.addEventListener('click', () => {
+                Swal.close();
+                onPaymentChosen(m); // panggil handler di bawah
+              });
+              // set shadow warna sesuai config
+              el.style.setProperty('--shadow', m.shadow);
+            });
+          }
+        });
+      } catch (e) {
+        console.error('load paymentMethods failed', e);
+        Swal.fire('Error', 'Gagal memuat metode pembayaran', 'error');
+      }
+    }
+    function onPaymentChosen(method) {
+      console.log('User memilih metode:', method);
+      // contoh: kirim ke WebSocket atau API
+      // ws.send(JSON.stringify({ type:"payment_method", value: method.id }));
+      // atau panggil fungsi khusus
+      if (method.id === 'qris') payByQris();
+      else if (method.id === 'cash') payByCash();
+      else if (method.id === 'card') payByCard();
+    }
+    function expired() {
+      loadPage("pages/expired-page.html", "");
+    }
+    function successBuy() {
+      loadPage("pages/buy-success.html", "");
+    }
+    function successSedekah() {
+      loadPage("pages/share-success.html", "");
+    }
+    function successWakaf() {
+      loadPage("pages/wakaf-success.html", "");
+    }
+    function available() {
+      loadPage("pages/available-page.html", "");
+    }
+    function empty() {
+      loadPage("pages/empty-page.html", "");
+    }
+    function stop() {
+      loadPage("pages/filling-done.html", "STATE_FILLING_DONE");
+    }
+  </script>
+</head>
+
+<body>
+  <div class="content" id="root">
+    <div class="header">
+      <div class="logo">
+        <img class="logo-psd" src="assets/img-psd.png" onclick="home()" /><img class="logo-unm" src="assets/img-unm.png"
+          onclick="home()" />
+      </div>
+      <div class="title">
+        <div class="title-top">
+          <p>
+            <b>“Siapkan <i>Tumbler</i> mu,</b>
+          </p>
+          <b>Kurangi Sampah Plastik!”</b>
+        </div>
+        <div class="title-bottom">
+          <div class="header-web">
+            <img class="header-web-image" src="assets/img-web.svg" />
+            <p class="header-web-link">www.psd.diginus.id</p>
+          </div>
+          <div class="header-ig">
+            <img class="header-ig-image" src="assets/img-ig.svg" />
+            <p class="header-ig-link">psd.diginus.id</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="main" id="main-content"></div>
+    <div class="footer">
+      <div class="footer-web">
+        <img class="footer-web-image" src="assets/img-web.svg" />
+        <p class="footer-web-link">www.psd.diginus.id</p>
+      </div>
+    </div>
+  </div>
+  <script>
+    // mapping nama action -> fungsi handler yang sudah ada
+    const ActionHandlers = {
+      buy, sedekah, wakaf, consume   // pastikan fungsi-fungsi ini sudah didefinisikan
+    };
+
+    // util: buat elemen service (DOM)
+    function renderServiceCard(svc) {
+      const wrap = document.createElement('div');
+      wrap.className = 'service';
+
+      const img = document.createElement('img');
+      img.className = 'img-service';
+      img.src = svc.icon || 'assets/img-layanan.png';
+      img.alt = svc.title || '';
+
+      const text = document.createElement('div');
+      text.className = 'text-service';
+
+      const title = document.createElement('p');
+      title.className = 'title-service';
+      // dukung \n di title (untuk "Transaksi\nMenggunakan\nAplikasi")
+      title.innerHTML = (svc.title || '').replace(/\n/g, '<br/>');
+
+      const desc = document.createElement('p');
+      desc.className = 'desc-service';
+      desc.textContent = svc.desc || '';
+
+      const btn = document.createElement('button');
+      btn.className = 'btn-service';
+      btn.textContent = svc.button || 'Pilih';
+
+      // binding aksi
+      const fn = ActionHandlers[svc.action];
+      if (typeof fn === 'function') {
+        btn.addEventListener('click', () => fn(svc));
+      } else {
+        // fallback kalau action tidak ada
+        btn.disabled = true;
+        btn.title = 'Action not available';
+      }
+
+      text.appendChild(title);
+      text.appendChild(desc);
+      wrap.appendChild(img);
+      wrap.appendChild(text);
+      wrap.appendChild(btn);
+      return wrap;
+    }
+
+    // load config.json dari LittleFS (file statik yang disajikan webserver ESP32)
+    async function loadServices() {
+      try {
+        const res = await fetch('config.json', { cache: 'no-cache' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const cfg = await res.json();
+        const list = (cfg && Array.isArray(cfg.services)) ? cfg.services : [];
+        const container = document.getElementById('services');
+        container.innerHTML = ''; // bersihkan
+
+        // render hanya yang enabled
+        list.filter(s => s.enabled !== false).forEach(svc => {
+          container.appendChild(renderServiceCard(svc));
+        });
+      } catch (e) {
+        console.error('loadServices failed:', e);
+        // fallback minimal kalau config.json gagal dibaca
+        const container = document.getElementById('services');
+        container.innerHTML = '<p style="color:#c00">Gagal memuat layanan.</p>';
+      }
+    }
+
+
+    let ws;
+    function initWebSocket() {
+      ws = new WebSocket(`ws://${window.location.hostname}/ws`);
+      ws.onopen = () => {
+        console.log("WebSocket connected");
+      };
+      ws.onmessage = (event) => {
+        console.log("Dari ESP32:", event.data);
+        try {
+          const data = JSON.parse(event.data);
+          if (data.command === "LOAD_PAGE") {
+            switch (data.page) {
+              case "home":
+                loadPage("pages/home-page.html", "");
+                loadServices();
+                break;
+              case "ads":
+                ads();
+                break;
+              case "available":
+                available();
+                break;
+              case "empty":
+                empty();
+                break;
+              case "filling-done":
+                loadPage("pages/filling-done.html", "");
+                break;
+            }
+          }
+          if (data.type === "info_update") {
+            if (data.volume) {
+              document.querySelector(".title-order").textContent =
+                "Pembelian Air Ukuran " + formatRupiah(data.volume) + " ML";
+              document.querySelector(".price-order").textContent =
+                "Rp. " + formatRupiah(data.volume);
+            }
+            if (data.saldo) {
+              document.querySelector(".total-amount").textContent =
+                "Rp. " + formatRupiah(data.saldo);
+            }
+            if (data.qr) {
+              document.querySelector(".qr-code").src =
+                "https://api.qrserver.com/v1/create-qr-code/?size=336x336&data=" +
+                encodeURIComponent(data.qr);
+            }
+            if (data.countdown) {
+              countdownTime = data.countdown;
+              startCountdown();
+            }
+          }
+          if (data.status === "SUCCEEDED") {
+            switch (data.fitur) {
+              case "BUY":
+                successBuy();
+                break;
+              case "SHARE":
+                successSedekah();
+                break;
+              case "WAKAF":
+                successWakaf();
+                break;
+              default:
+                console.warn("Fitur tidak dikenali:", data.fitur);
+            }
+          } else if (data.status === "EXPIRED") {
+            expired();
+          }
+        } catch (e) {
+          console.warn("Bukan JSON atau format salah", e);
+        }
+      };
+      ws.onclose = () => {
+        console.log("WebSocket disconnected");
+        setTimeout(initWebSocket, 2000);
+      };
+    }
+    window.onload = initWebSocket;
+    function restoreLayout() {
+      const layout = ` <div class="header"><div class="logo"><img class="logo-psd" src="assets/img-psd.png" onclick=\"loadPage('pages/home-page.html')\" /><img class="logo-unm" src="assets/img-unm.png" onclick=\"loadPage('pages/home-page.html')\" /></div><div class="title"><div class="title-top"><p><b>“Siapkan <i>Tumbler</i> mu,</b></p><b>Kurangi Sampah Plastik!”</b></div><div class="title-bottom"><div class="header-web"><img class="header-web-image" src="assets/img-web.svg" /><p class="header-web-link">www.psd.diginus.id</p></div><div class="header-ig"><img class="header-ig-image" src="assets/img-ig.svg" /><p class="header-ig-link">psd.diginus.id</p></div></div></div></div><div class="main" id="main-content"></div><div class="footer"><div class="footer-web"><img class="footer-web-image" src="assets/img-web.svg" /><p class="footer-web-link">www.psd.diginus.id</p></div></div> `;
+      $("#root").html(layout);
+    }
+    function loadPage(pageFile, state = null) {
+      if (!$("#main-content").length) {
+        restoreLayout();
+      }
+      $("#main-content").load(pageFile, function (response, status, xhr) {
+        if (status === "error") {
+          $("#main-content").html("<p>Halaman tidak ditemukan.</p>");
+        } else {
+          if (state && ws && ws.readyState === WebSocket.OPEN) {
+            ws.send(JSON.stringify({ type: "page_state", state: state }));
+            console.log("State dikirim ke ESP32:", state);
+          }
+          if (pageFile === "pages/buy-page.html") {
+            initBuyPage();
+          } else if (pageFile === "pages/share-page.html") {
+            initSharePage();
+          } else if (pageFile === "pages/wakaf-page.html") {
+            initWakafPage();
+          }
+        }
+      });
+      document.body.setAttribute("data-page", pageFile);
+    }
+    function loadFullPage(pageFile, state = null) {
+      $("#root").load(pageFile, function (response, status, xhr) {
+        if (status === "error") {
+          $("#root").html("<p>Halaman tidak ditemukan.</p>");
+        } else if (state && ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({ type: "page_state", state: state }));
+          console.log("State dikirim ke ESP32:", state);
+        } else if (state) {
+          console.warn("WebSocket belum siap, state tidak terkirim:", state);
+        }
+      });
+    }
+    function initBuyPage() {
+      let t = 0;
+      const keypadOk = document.querySelector(".keypad-ok"),
+        confirmButton = document.querySelector("#confirm-ok");
+      // if (keypadOk && confirmButton) {
+      keypadOk.style.pointerEvents = "none";
+      keypadOk.style.opacity = "0.5";
+      confirmButton.style.pointerEvents = "none";
+      confirmButton.style.opacity = "0.5";
+      confirmButton.disabled = true;
+      // }
+      $("[class^='keypad-angka']").click(function () {
+        const angka = parseInt($(this).text());
+        if (!isNaN(angka)) {
+          t = 10 * t + angka;
+          t = Math.min(t, 3000);
+          sendVolume(t);
+        }
+      });
+      $(".keypad-backspace").click(function () {
+        t = Math.floor(t / 10);
+        sendVolume(t);
+      });
+      $(".size-button-1").click(function () {
+        sendVolume((t = 200));
+      });
+      $(".size-button-2").click(function () {
+        sendVolume((t = 600));
+      });
+      $(".size-button-3").click(function () {
+        sendVolume((t = 1500));
+      });
+    }
+    function initSharePage() {
+      let t = 0;
+      const keypadOk = document.querySelector(".keypad-ok"),
+        confirmButton = document.querySelector("#confirm-ok");
+      if (keypadOk && confirmButton) {
+        keypadOk.style.pointerEvents = "none";
+        keypadOk.style.opacity = "0.5";
+        confirmButton.style.pointerEvents = "none";
+        confirmButton.style.opacity = "0.5";
+        confirmButton.disabled = true;
+      }
+      $("[class^='keypad-angka']").click(function () {
+        const angka = parseInt($(this).text());
+        if (!isNaN(angka)) {
+          t = 10 * t + angka;
+          sendVolume(t);
+        }
+      });
+      $(".keypad-backspace").click(function () {
+        t = Math.floor(t / 10);
+        sendVolume(t);
+      });
+      $(".size-button-1").click(function () {
+        sendVolume((t = 200));
+      });
+      $(".size-button-2").click(function () {
+        sendVolume((t = 600));
+      });
+      $(".size-button-3").click(function () {
+        sendVolume((t = 1500));
+      });
+    }
+    function initWakafPage() {
+      let t = 0;
+      const keypadOk = document.querySelector(".keypad-ok"),
+        confirmButton = document.querySelector("#confirm-ok");
+      if (keypadOk && confirmButton) {
+        keypadOk.style.pointerEvents = "none";
+        keypadOk.style.opacity = "0.5";
+        confirmButton.style.pointerEvents = "none";
+        confirmButton.style.opacity = "0.5";
+        confirmButton.disabled = true;
+      }
+      $("[class^='keypad-angka']").click(function () {
+        const angka = parseInt($(this).text());
+        if (!isNaN(angka)) {
+          t = 10 * t + angka;
+          sendVolume(t);
+        }
+      });
+      $(".keypad-backspace").click(function () {
+        t = Math.floor(t / 10);
+        sendVolume(t);
+      });
+      $(".size-button-1").click(function () {
+        sendVolume((t = 200));
+      });
+      $(".size-button-2").click(function () {
+        sendVolume((t = 600));
+      });
+      $(".size-button-3").click(function () {
+        sendVolume((t = 1500));
+      });
+    }
+    function loadAds(url) {
+      const adsItem = document.querySelector(".ads-item-video");
+      adsItem.src = url;
+      adsItem.load();
+      const container = document.querySelector(".ads-container");
+      adsItem.addEventListener("loadedmetadata", function () {
+        const aspectRatio = adsItem.videoWidth / adsItem.videoHeight;
+        if (aspectRatio <= 0.5625) {
+          container.classList.add("fullscreen-video");
+        } else {
+          container.classList.remove("fullscreen-video");
+        }
+      });
+    }
+    function startCountdown() {
+      const el = document.querySelector(".countdown");
+      let t = Date.now() + countdownTime * 1000;
+      const interval = setInterval(() => {
+        const remaining = Math.max(0, t - Date.now());
+        const m = String(Math.floor(remaining / 60000)).padStart(2, "0");
+        const s = String(Math.floor((remaining % 60000) / 1000)).padStart(
+          2,
+          "0"
+        );
+        el.textContent = `${m}:${s}`;
+        if (remaining <= 0) {
+          clearInterval(interval);
+          el.textContent = "00:00";
+        }
+      }, 100);
+    }
+    function formatRupiah(e) {
+      return e.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
+    function sendVolume(vol) {
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({ type: "set_volume", value: vol }));
+        updateDisplay(vol);
+      } else {
+        console.warn("WebSocket tidak siap. Volume tidak dikirim:", vol);
+      }
+    }
+    function updateDisplay(vol) {
+      document.querySelector(".info-size").textContent =
+        formatRupiah(vol) + " ML";
+      document.querySelector(".info-price").textContent =
+        "Rp. " + formatRupiah(vol);
+      const keypadOk = document.querySelector(".keypad-ok");
+      const confirmButton = document.querySelector("#confirm-ok");
+      const page = document.body.getAttribute("data-page");
+      let isValid = false;
+      if (page === "pages/buy-page.html") {
+        isValid = vol >= 200 && vol <= 3000;
+      } else if (page === "pages/share-page.html" || page === "pages/wakaf-page.html") {
+        isValid = vol >= 1;
+      }
+      if (isValid) {
+        keypadOk.style.pointerEvents = "auto";
+        keypadOk.style.opacity = "1";
+        confirmButton.style.pointerEvents = "auto";
+        confirmButton.style.opacity = "1";
+        confirmButton.disabled = false;
+      } else {
+        keypadOk.style.pointerEvents = "none";
+        keypadOk.style.opacity = "0.5";
+        confirmButton.style.pointerEvents = "none";
+        confirmButton.style.opacity = "0.5";
+        confirmButton.disabled = true;
+      }
+    }
+    $(document).ready(function () {
+      loadPage("pages/home-page.html", "STATE_RESET");
+      loadServices();
+    });
+    document.addEventListener("contextmenu", function (e) {
+      e.preventDefault();
+    });
+    document.addEventListener("click", function (e) {
+      if (e.target.closest(".payment-item")) {
+        const selectedItem = e.target.closest(".payment-item");
+        const paymentMethod = selectedItem.dataset.method;
+        document.querySelectorAll(".payment-item").forEach((item) => {
+          item.style.transform = "";
+          item.style.boxShadow = "";
+          item.style.border = "";
+        });
+        selectedItem.style.transform = "translateY(-12px)";
+        selectedItem.style.boxShadow = "0 12px 24px rgba(0,0,0,0.2)";
+        selectedItem.style.border = "2px solid #814092";
+        const icon = selectedItem.querySelector(".payment-icon");
+        icon.style.animation = "pulse 0.6s ease-in-out";
+        Swal.showLoading();
+        setTimeout(() => {
+          Swal.close();
+          switch (paymentMethod) {
+            case "qris":
+              loadPage("pages/qris-page.html", "STATE_CREATE_QR");
+              break;
+            case "cash":
+              loadPage("pages/cash-page.html", "STATE_CREATE_CASH");
+              break;
+            case "card":
+              loadPage("pages/card-page.html", "STATE_CREATE_CARD");
+              break;
+          }
+        }, 700);
+      }
+    });
+
+    const style = document.createElement("style");
+    style.textContent = ` @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }`;
+    document.head.appendChild(style);
+  </script>
+</body>
+
+</html>
