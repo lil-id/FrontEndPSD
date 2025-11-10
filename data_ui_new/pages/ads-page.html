@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<meta content="notranslate" name="google" charset="UTF-8" />
+<meta
+    content="public,width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=0,max-age=2592000"
+    name="viewport" http-equiv="Cache-Control" />
+<link rel="icon" type="image/x-icon" href="../assets/favicon.ico" />
+<script src="../lib/jquery-3.7.1.min.js"></script>
+<title>Public Smart Dispenser</title>
+<style>
+    :root {
+        --hsl-primary: 277, 91%, 18%;
+        --hsl-text: 281, 65%, 90%;
+        --primary-color: hsl(var(--hsl-primary));
+        --text-color: hsl(var(--hsl-text));
+    }
+
+    * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        font-family: Arial, sans-serif;
+        background-color: var(--primary-color);
+        color: var(--text-color);
+        text-align: center;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+    }
+
+    .ads-item {
+        width: 100%;
+        /* height: 100vh; */
+        max-width: 100vw;
+        max-height: 100vh;
+        object-fit: cover;
+        /* Ensures the video covers the container */
+    }
+
+    .ads-container {
+        padding: 0px;
+        display: flex;
+        flex-direction: column;
+        background-color: #39045a;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        height: 100dvh;
+        overflow: hidden;
+    }
+
+    .ads-container.fullscreen-video {
+        height: 100vh;
+    }
+
+    .ads-container.fullscreen-video .header,
+    .ads-container.fullscreen-video .img-header,
+    .ads-container.fullscreen-video .footer {
+        display: none;
+    }
+
+    .ads-container .header,
+    .ads-container .footer {
+        flex: 1;
+        font-size: 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .header {
+        background-image: url("../assets/img-header.jpg");
+        background-position: center;
+        background-size: cover;
+        display: flex;
+        justify-content: start !important;
+        align-items: start !important;
+    }
+
+    .header img {
+        width: 100%;
+        height: auto;
+        max-width: 100vw;
+        max-height: 100vh;
+    }
+
+    .header h1 {
+        color: white;
+        font-size: 5rem;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    }
+
+    .footer {
+        background-color: var(--primary-color);
+        background-color: #39045a;
+        opacity: 0.8;
+        background: radial-gradient(circle,
+                transparent 20%,
+                #39045a 20%,
+                #39045a 80%,
+                transparent 80%,
+                transparent),
+            radial-gradient(circle,
+                transparent 20%,
+                #39045a 20%,
+                #39045a 80%,
+                transparent 80%,
+                transparent) 30px 30px,
+            linear-gradient(#a205f9 2.4px, transparent 2.4px) 0 -1.2px,
+            linear-gradient(90deg, #a205f9 2.4px, #39045a 2.4px) -1.2px 0;
+        background-size: 60px 60px, 60px 60px, 30px 30px, 30px 30px;
+        animation: slide-diagonal 4s linear infinite;
+    }
+
+    @keyframes slide-diagonal {
+        0% {
+            background-position: 0 0, 30px 30px, 0 -1.2px, -1.2px 0;
+        }
+
+        100% {
+            background-position: 60px 60px, 90px 90px, 30px 28.8px, 28.8px 30px;
+        }
+    }
+
+    @keyframes bounce {
+
+        0%,
+        20%,
+        80%,
+        100% {
+            transform: translateY(0);
+        }
+
+        40% {
+            transform: translateY(-30px);
+        }
+
+        50% {
+            transform: translateY(-15px);
+        }
+
+        60% {
+            transform: translateY(-3px);
+        }
+    }
+
+    .bounce {
+        animation: bounce 3s ease infinite;
+    }
+</style>
+<script>
+    function home() {
+        window.location.href = "/";
+    }
+</script>
+
+<body onclick="home()">
+    <div class="ads-container">
+        <img class="img-header" src="../assets/img-header.jpg" alt="" />
+        <div class="video-container">
+            <video class="ads-item ads-item-video" id="videoPlayer" preload="auto" playsinline autoplay>
+                <source src="" type=video/mp4>Your browser does not support the video
+                tag.
+            </video>
+        </div>
+        <div class="footer">
+            <img class="bounce" src="../assets/img-tagline.png" alt=""
+                style="padding-inline: 10rem; max-width: 100vw" />
+        </div>
+    </div>
+    <script>
+        var check = !0;
+        let ws;
+        let adIndex = 0;
+        let adList = [];
+        function initWebSocket() {
+            ws = new WebSocket(`ws://${window.location.hostname}/ws`);
+            ws.onopen = () => {
+                console.log("WebSocket connected");
+            };
+            ws.onmessage = (event) => {
+                console.log("Dari ESP32:", event.data);
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.command === "LOAD_PAGE") {
+                        if (data.page === "home") home();
+                    }
+                } catch (e) {
+                    console.warn("Bukan JSON atau format salah", e);
+                }
+            };
+            ws.onclose = () => {
+                console.log("WebSocket disconnected");
+                setTimeout(initWebSocket, 2000);
+            };
+        }
+        window.onload = initWebSocket;
+        function home() {
+            window.location.href = "/";
+        }
+        function getLink() {
+            const xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    try {
+                        const list = JSON.parse(xhr.responseText);
+                        if (Array.isArray(list) && list.length > 0) {
+                            adList = list;
+                            adIndex = 0;
+                            playNextAd();
+                        } else {
+                            console.warn("Daftar iklan kosong atau format salah");
+                            check = false;
+                        }
+                    } catch (e) {
+                        console.error("Gagal parse iklan:", e);
+                    }
+                }
+            };
+            xhr.open("GET", "/getiklan", true);
+            xhr.send();
+        }
+        function playNextAd() {
+            const adsItem = document.querySelector(".ads-item-video");
+            const container = document.querySelector(".ads-container");
+            if (adList.length === 0) return;
+            const url = adList[adIndex];
+            adsItem.src = url;
+            adsItem.load();
+            adsItem.onloadedmetadata = () => {
+                const aspectRatio = adsItem.videoWidth / adsItem.videoHeight;
+                if (aspectRatio <= 0.5625) {
+                    container.classList.add("fullscreen-video");
+                } else {
+                    container.classList.remove("fullscreen-video");
+                }
+                adsItem.play();
+            };
+            adsItem.onended = () => {
+                adIndex = (adIndex + 1) % adList.length;
+                playNextAd();
+            };
+        }
+        $(document).ready(function () {
+            getLink();
+        });
+        document.addEventListener("contextmenu", function (e) {
+            e.preventDefault();
+        });
+    </script>
+</body>
+
+</html>
